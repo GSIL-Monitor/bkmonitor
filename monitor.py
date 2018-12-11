@@ -40,6 +40,7 @@ def check(begin, end, page=1):
                  '结束时间':tds[4].text,
                  '持续时间':tds[5].text
                 }
+        print(event)
         try:
             events_info.insert_one(event)
         except Exception as e:
@@ -47,7 +48,6 @@ def check(begin, end, page=1):
             return -1
         
     if page == 1:
-        make_point(end)
         page_info = warning_table[-1].find('div').text   #'共0条|< << 1 >> >| [1]'   共2780条|< << [1] 2 3 >> >| [278]
         total_page = int(page_info.split('|')[2][2:-1])
         if total_page > 1:
@@ -67,5 +67,9 @@ if __name__ == '__main__':
     while True:
         end_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         result = check(begin_time, end_time)
+        if result >= 0:
+            make_point(end_time)
+            begin_time = end_time
+
         print("check at {}, warning count={}".format(end_time, result))
         time.sleep(60)
