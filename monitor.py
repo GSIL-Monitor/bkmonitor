@@ -2,6 +2,7 @@
 # -*- coding:utf-8 -*-
 import requests
 import datetime
+import time
 import re
 from bs4 import BeautifulSoup
 from pymongo import MongoClient
@@ -62,5 +63,9 @@ if __name__ == '__main__':
         last_checktime = f.readline()
 
     begin_time = last_checktime
-    end_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    result = check(begin_time, end_time)
+
+    while True:
+        end_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        result = check(begin_time, end_time)
+        print("check at {}, warning count={}".format(end_time, result))
+        time.sleep(60)
