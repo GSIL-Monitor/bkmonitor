@@ -13,7 +13,7 @@ class Mailer(object):
     def __init__(self):
         self.smtpserver = "smtp.exmail.qq.com"
         self.smtpuser = "lugf@mail.sustc.edu.cn"
-        self.smtppwd = "Mmuu/0425"
+        self.smtppwd = "Ni12shiwode09"
 
     def generateAlternativeEmailMsgRoot(self, strFrom, listTo, listCc, strSubJect, strMsgText, strMsgHtml, listImagePath, attachment):
         # Create the root message and fill in the from, to, and subject headers

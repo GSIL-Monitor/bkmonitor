@@ -11,6 +11,7 @@ from notify import *
 client = MongoClient()
 events_db = client.events 
 events_info = events_db.events_info
+mm = Mailer()
 
 def make_point(last_checktime):
     with open('/home/monitor/last_check.log', 'w') as f:
@@ -18,8 +19,14 @@ def make_point(last_checktime):
         
 
 def check(begin, end, page=1):
-    r = requests.post('http://192.168.0.100/history_event.php', 
-                  data={'begintime':begin, 'endtime':end, 'page':page})    #"2018-11-20 17:59:00"
+    try:
+        r = requests.post('http://192.168.0.100/history_event.php', 
+                          data={'begintime':begin, 'endtime':end, 'page':page})    #"2018-11-20 17:59:00"
+    except Exception as e:
+        print('network exception')
+        mm.sendemail('lugf@mail.sustc.edu.cn', ['lmmsuu@163.com'], 'Network exception',
+                "{}".format(e))
+        return -2
 
     soup = BeautifulSoup(r.text)
     warning_table = soup.find(id="liebiao").find_all('tr')
@@ -28,9 +35,12 @@ def check(begin, end, page=1):
     if len(warning_infos) > 0 :
         first_warning = warning_infos[0].find_all('td')
 
-        mm = Mailer()
-        mm.sendemail('lugf@mail.sustc.edu.cn', ['lmmsuu@163.com'], first_warning[2].text,
+        try:  
+            mm.sendemail('lugf@mail.sustc.edu.cn', ['lmmsuu@163.com'], first_warning[2].text,
                 "{} {}".format(first_warning[3].text, first_warning[4].text))
+        except Exception as e:
+            print(e)
+            return -1
 
     for w in warning_infos:
         tds = w.find_all('td')
@@ -52,7 +62,7 @@ def check(begin, end, page=1):
         total_page = int(page_info.split('|')[2][2:-1])
         if total_page > 1:
             for page in range(2, total_page+1):
-                if check(begin, end, page) == -1:
+                if check(begin, end, page) < 0:
                     print('Fatal Error, just quit')
                     return -1
                 
